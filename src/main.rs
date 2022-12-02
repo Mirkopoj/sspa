@@ -6,7 +6,7 @@ use std::process::Command;
 extern crate unicode_segmentation;
 use unicode_segmentation::UnicodeSegmentation;
 
-const CARGOPATH: &str = "/home/mirko/SSD/CodigosVarios/Rust/sspa";
+const CARGOPATH: &str = "/opt/sspa";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -159,9 +159,9 @@ fn actualizar(){
             .arg(CARGOPATH.to_string()+"/target/release/sspa")
             .arg("/bin/sspa")
             .spawn()
-            .expect("failed to remove sspa");
+            .expect("failed to add sspa to path");
 
-    child.wait().expect("Failed to wait on rm sspa");
+    child.wait().expect("Failed to wait on cp sspa");
 }
 
 fn run(_verbose: bool, _quiet: bool, _log: bool, _log_path: Option<&String>){}
