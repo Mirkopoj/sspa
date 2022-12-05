@@ -127,6 +127,9 @@ fn imprimir_ayuda(){
     println!("\t-l --logfile <FILE>\tLogs output to specified file, not afected by --quiet");
     println!("\t-V --version\t\tPrints version information and exit");
     println!();
+    println!("NOTE: you can uninstall the program at any time running:");
+    println!("\tsspa_uninstall.sh");
+    println!();
 }
 
 fn actualizar(){
