@@ -159,6 +159,14 @@ fn actualizar(){
     child.wait().expect("Failed to wait on cargo build");
 
     let mut child = Command::new("sudo")
+            .arg("rm")
+            .arg("/bin/sspa")
+            .spawn()
+            .expect("failed to rm sspa");
+
+    child.wait().expect("Failed to wait on rm sspa");
+
+    let mut child = Command::new("sudo")
             .arg("cp")
             .arg(CARGOPATH.to_string()+"/target/release/sspa")
             .arg("/bin/sspa")
