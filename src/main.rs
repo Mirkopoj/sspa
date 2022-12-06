@@ -95,7 +95,7 @@ fn main() {
                 quiet = true;
             },
             "-V" | "--version" => {
-                println!("0.0.0");
+                println!("v0.0.0");
                 quit = true;
                 break;
             },
