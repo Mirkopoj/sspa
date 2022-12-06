@@ -133,7 +133,8 @@ fn imprimir_ayuda(){
 }
 
 fn actualizar(){
-    let mut child = Command::new("git")
+    let mut child = Command::new("sudo")
+            .arg("git")
             .arg("pull")
             .current_dir(CARGOPATH)
             .spawn()
