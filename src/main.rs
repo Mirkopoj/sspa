@@ -1,10 +1,7 @@
 use std::env;
-use std::path::Path;
-use std::fs;
 use std::process::Command;
 
 extern crate unicode_segmentation;
-use unicode_segmentation::UnicodeSegmentation;
 
 const CARGOPATH: &str = "/opt/sspa";
 
@@ -13,11 +10,10 @@ fn main() {
 
     let mut verbose = false;
     let mut quiet = false;
-    let mut log = false;
     let mut quit = false;
-    let mut log_path = None;
+    let mut port = "8000";
 
-    let mut arg = args.iter();
+    let mut arg = args.iter().peekable();
     arg.next();
     while let Some(option) = arg.next() {
         match option.as_str() {
@@ -34,65 +30,14 @@ fn main() {
             "-v" | "--verbose" => {
                 verbose = true;
             },
-            "-l" | "--logfile" => {
-                match arg.next() {
-                    Some(path) => {
-                        if !(path.contains("-u")||
-                             path.contains("--update")||
-                             path.contains("-h")||
-                             path.contains("--help")||
-                             path.contains("-v")||
-                             path.contains("--verbose")||
-                             path.contains("-l")||
-                             path.contains("--logfile")||
-                             path.contains("-q")||
-                             path.contains("--quiet")||
-                             path.contains("-V")||
-                             path.contains("--version")
-                            ) {
-                            log = true;
-                            log_path = Some(path);
-                            if Path::new(path).exists() { continue; }
-                            let dir = (*path)
-                                .graphemes(true)
-                                .rev()
-                                .skip_while(|x| *x != "/")
-                                .collect::<String>()
-                                .graphemes(true)
-                                .rev()
-                                .collect::<String>();
-                            fs::create_dir_all(dir).expect("Could not create dirctory");
-                            fs::File::create(path).expect("Could not create logfile");
-                            continue;
-                        } 
-                    },
-                    None => { },
-                }
-                println!("Missing [FILE]");
-                println!("Try using:");
-                print!("\tsspa ");
-                for v in args
-                         .iter()
-                         .skip(1)
-                         .take_while(|x| (x.as_str() != "-l") && (x.as_str() != "--logfile") )
-                         .collect::<Vec<&String>>() 
-                {
-                             print!("{} ", v);
-                }
-                print!("{} <path/to/file> ", option);
-                for v in args
-                         .iter()
-                         .skip_while(|x| (x.as_str() != "-l") && (x.as_str() != "--logfile") )
-                         .skip(1)
-                         .collect::<Vec<&String>>()
-                {
-                             print!("{} ", v);
-                }
-                quit = true;
-                break;
-            },
             "-q" | "--quiet" => {
                 quiet = true;
+            },
+            "-p" | "--port" => {
+                port = match arg.next_if(|&x| x.parse::<u32>().is_ok() ) {
+                    Some(n) => { n },
+                    None => { port }
+                }
             },
             "-V" | "--version" => {
                 println!("v0.0.0");
@@ -106,8 +51,9 @@ fn main() {
             },
         }
     }
+
     if !quit{
-        run(verbose, quiet, log, log_path);
+        run(verbose, quiet, port);
     }
 }
 
@@ -124,7 +70,7 @@ fn imprimir_ayuda(){
     println!("\t-u --update\t\tUpdates binaries and exit");
     println!("\t-v --verbose\t\tExplain what is being done");
     println!("\t-q --quiet\t\tDo no log to stdout, will overwrite --verbose");
-    println!("\t-l --logfile <FILE>\tLogs output to specified file, not afected by --quiet");
+    println!("\t-p --port\t\tEspecify a port for the TCP server to listen at, 8000 by default");
     println!("\t-V --version\t\tPrints version information and exit");
     println!();
     println!("NOTE: you can uninstall the program at any time running:");
@@ -177,4 +123,7 @@ fn actualizar(){
     child.wait().expect("Failed to wait on cp sspa");
 }
 
-fn run(_verbose: bool, _quiet: bool, _log: bool, _log_path: Option<&String>){}
+#[allow(unused_variables)]
+fn run(verbose: bool, quiet: bool, port: &str){
+    println!("{}", port);
+}

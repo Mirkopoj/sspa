@@ -22,7 +22,7 @@ OPTIONS:
 	-u --update		Updates binaries and exit
 	-v --verbose		Explain what is being done
 	-q --quiet		Do no log to stdout, will overwrite --verbose
-	-l --logfile <FILE>	Logs output to specified file, not afected by --quiet
+	-p --port		Especify a port for the TCP server to listen at, 8000 by default
 	-V --version		Prints version information and exit
 
 NOTE: you can uninstall the program at any time running:
