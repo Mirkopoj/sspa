@@ -34,7 +34,7 @@ fn main() {
                 quiet = true;
             },
             "-p" | "--port" => {
-                port = match arg.next_if(|&x| x.parse::<u32>().is_ok() ) {
+                port = match arg.next_if(|&x| x.parse::<u16>().is_ok() ) {
                     Some(n) => { n },
                     None => { port }
                 }
