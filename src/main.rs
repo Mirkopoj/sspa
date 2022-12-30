@@ -1,11 +1,19 @@
 use std::env;
 use std::process::Command;
+use tokio::sync::{mpsc, broadcast};
 
 extern crate unicode_segmentation;
 
 const CARGOPATH: &str = "/opt/sspa";
 
-fn main() {
+mod spi;
+use spi::{spi_handler, dac_handler};
+
+mod server;
+use server::run;
+
+#[tokio::main]
+async fn main() {
     let args: Vec<String> = env::args().collect();
 
     let mut verbose = false;
@@ -53,7 +61,21 @@ fn main() {
     }
 
     if !quit{
-        run(verbose, quiet, port);
+        let (spi_tx, rx_spi) = mpsc::channel(16);
+        let (tx_spi, spi_rx) = broadcast::channel(16);
+
+        let (dac_tx, rx_dac) = mpsc::channel(16);
+        let (tx_dac, dac_rx) = broadcast::channel(16);
+
+        tokio::spawn(async move {
+            spi_handler(verbose, rx_spi, tx_spi).await;
+        });
+
+        tokio::spawn(async move {
+            dac_handler(rx_dac, tx_dac).await;
+        });
+
+        run(verbose, quiet, port, spi_rx, spi_tx, dac_rx, dac_tx).await;
     }
 }
 
@@ -121,9 +143,4 @@ fn actualizar(){
             .expect("failed to add sspa to path");
 
     child.wait().expect("Failed to wait on cp sspa");
-}
-
-#[allow(unused_variables)]
-fn run(verbose: bool, quiet: bool, port: &str){
-    println!("{}", port);
 }
