@@ -7,3 +7,9 @@ edition = "2021"
 
 [dependencies]
 unicode-segmentation = "0.1.2"
+rppal = "0.14.1"
+tokio = { version = "1", features = ["full"] }
+
+[dependencies.uuid]
+version = "0.8"
+features = ["v4"]
