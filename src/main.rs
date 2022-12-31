@@ -59,6 +59,8 @@ async fn main() {
             },
         }
     }
+    
+    if quiet { verbose = false; }
 
     if !quit{
         let (spi_tx, rx_spi) = mpsc::channel(16);

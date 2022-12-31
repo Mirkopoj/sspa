@@ -12,7 +12,7 @@ pub async fn run(
     dac_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>
 ) {
-    if verbose && !quiet { println!("Server starting"); }
+    if verbose { println!("Server starting"); }
 
     let listener = TcpListener::bind("0.0.0.0:".to_string()+port).await.unwrap();
 
@@ -54,20 +54,26 @@ async fn handle_connection(
 
         let n_bytes = socket.read(&mut buffer).await.unwrap();
 
-        if n_bytes != 4 { continue; }
+        if n_bytes != 4 { 
+            if verbose { println!("Number of bytes is not 4"); }
+            continue; 
+        }
 
         let mensaje = <u32>::from_be_bytes(buffer);
-        if verbose { println!("Received: {:X}", mensaje); }
+        if !quiet { println!("Received: {:X}", mensaje); }
 
         let respuesta = match mensaje & 0x7F000000 {
             0x32000000 => { Some(spi_read(mensaje, &mut spi_rx, &spi_tx).await) },
             0x25000000 => { Some(spi_write(mensaje, &mut spi_rx, &spi_tx).await) },
-            _ => { None }
+            _ => { 
+                if verbose { println!("Invalid Command"); }
+                None 
+            }
         };
 
         if let Some(valor) = respuesta {
             let _ = socket.write_all(&valor).await;
-            if verbose { println!("Sent: {:X}", <u16>::from_be_bytes(valor)); }
+            if !quiet { println!("Sent: {:X}", <u16>::from_be_bytes(valor)); }
         }
     }
 }
