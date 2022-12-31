@@ -74,7 +74,7 @@ async fn main() {
         });
 
         tokio::spawn(async move {
-            dac_handler(rx_dac, tx_dac).await;
+            dac_handler(verbose, rx_dac, tx_dac).await;
         });
 
         run(verbose, quiet, port, spi_rx, spi_tx, dac_rx, dac_tx).await;

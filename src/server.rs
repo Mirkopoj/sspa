@@ -1,7 +1,7 @@
 use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncWriteExt,AsyncReadExt};
 
-use crate::spi::{spi_read, spi_write};
+use crate::spi::{spi_read, spi_write, dac_read, dac_write};
 
 pub async fn run(
     verbose: bool,
@@ -39,14 +39,13 @@ pub async fn run(
     }
 }
 
-#[allow(unused_variables)]
 async fn handle_connection(
     mut socket: TcpStream,
     verbose: bool,
     quiet: bool,
     mut spi_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     spi_tx: tokio::sync::mpsc::Sender<[u8;5]>,
-    dac_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    mut dac_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>
 ) {
     loop {
@@ -65,6 +64,8 @@ async fn handle_connection(
         let respuesta = match mensaje & 0x7F000000 {
             0x32000000 => { Some(spi_read(mensaje, &mut spi_rx, &spi_tx).await) },
             0x25000000 => { Some(spi_write(mensaje, &mut spi_rx, &spi_tx).await) },
+            0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx).await) },
+            0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx).await) },
             _ => { 
                 if verbose { println!("Invalid Command"); }
                 None 
