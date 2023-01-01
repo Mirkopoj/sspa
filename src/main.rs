@@ -6,6 +6,9 @@ extern crate unicode_segmentation;
 
 const CARGOPATH: &str = "/opt/sspa";
 
+mod tnr;
+use tnr::tnr_handler;
+
 mod spi;
 use spi::{spi_handler, dac_handler};
 
@@ -69,6 +72,9 @@ async fn main() {
         let (dac_tx, rx_dac) = mpsc::channel(16);
         let (tx_dac, dac_rx) = broadcast::channel(16);
 
+        let (tnr_tx, rx_tnr) = mpsc::channel(16);
+        let (tx_tnr, tnr_rx) = broadcast::channel(16);
+
         tokio::spawn(async move {
             spi_handler(verbose, rx_spi, tx_spi).await;
         });
@@ -77,7 +83,11 @@ async fn main() {
             dac_handler(verbose, rx_dac, tx_dac).await;
         });
 
-        run(verbose, quiet, port, spi_rx, spi_tx, dac_rx, dac_tx).await;
+        tokio::spawn(async move {
+            tnr_handler(verbose, rx_tnr, tx_tnr).await;
+        });
+
+        run(verbose, quiet, port, spi_rx, spi_tx, dac_rx, dac_tx, tnr_rx, tnr_tx).await;
     }
 }
 

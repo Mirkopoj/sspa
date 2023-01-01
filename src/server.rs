@@ -2,6 +2,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncWriteExt,AsyncReadExt};
 
 use crate::spi::{spi_read, spi_write, dac_read, dac_write};
+use crate::tnr::tnr;
 
 pub async fn run(
     verbose: bool,
@@ -10,7 +11,9 @@ pub async fn run(
     spi_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     spi_tx: tokio::sync::mpsc::Sender<[u8;5]>,
     dac_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
-    dac_tx: tokio::sync::mpsc::Sender<[u8;3]>
+    dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
+    tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>
 ) {
     if verbose { println!("Server starting"); }
 
@@ -24,6 +27,8 @@ pub async fn run(
         let spi_tx_clone =  spi_tx.clone();
         let dac_rx_clone =  dac_rx.resubscribe();
         let dac_tx_clone =  dac_tx.clone();
+        let tnr_rx_clone =  tnr_rx.resubscribe();
+        let tnr_tx_clone =  tnr_tx.clone();
 
         tokio::spawn(async move {
             handle_connection(
@@ -33,7 +38,9 @@ pub async fn run(
         		spi_rx_clone,
         		spi_tx_clone,
         		dac_rx_clone,
-        		dac_tx_clone
+        		dac_tx_clone,
+        		tnr_rx_clone,
+        		tnr_tx_clone
             ).await;
         });
     }
@@ -46,7 +53,9 @@ async fn handle_connection(
     mut spi_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     spi_tx: tokio::sync::mpsc::Sender<[u8;5]>,
     mut dac_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
-    dac_tx: tokio::sync::mpsc::Sender<[u8;3]>
+    dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
+    mut tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>
 ) {
     loop {
         let mut buffer = [0; 4];
@@ -66,6 +75,7 @@ async fn handle_connection(
             0x25000000 => { Some(spi_write(mensaje, &mut spi_rx, &spi_tx).await) },
             0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx).await) },
             0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx).await) },
+            0x33000000 | 0x23000000 | 0xA3000000 => { Some(tnr(mensaje, &mut tnr_rx, &tnr_tx).await) },
             _ => { 
                 if verbose { println!("Invalid Command"); }
                 None 
