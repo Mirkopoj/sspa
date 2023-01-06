@@ -33,7 +33,6 @@ for bit in range(num_bits-1, -1, -1):
    pulses.append((on, off, bit_time))
 
 
-import time
 import pigpio
 
 pi = pigpio.pi()
@@ -52,11 +51,12 @@ pi.wave_add_generic(wf)
 
 wid = pi.wave_create()
 if wid >= 0:
-  espera = float(sys.argv[3])/1000000.0
-  pi.wave_send_repeat(wid)
-  time.sleep(espera)
   if int(sys.argv[3]) == 0: 
-    sys.stdin.readline()
+    pi.wave_send_repeat(wid)
+  else:
+    for i in range(0,int(sys.argv[3])):
+      pi.wave_send_once(wid)
+  sys.stdin.readline()
   pi.wave_tx_stop()
   pi.wave_delete(wid)
 
