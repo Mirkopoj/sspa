@@ -1,8 +1,10 @@
 # sspa
 
-Automatic board tester
+Module test asistant
 
 ## Instalation 
+
+Works on both dietpi and raspberry pi os.
 
 ```shell
 wget https://raw.githubusercontent.com/Mirkopoj/sspa_installer_script/master/sspa_install.sh
