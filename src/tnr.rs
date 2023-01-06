@@ -19,6 +19,7 @@ pub async fn tnr_handler(
     loop {
         let msg = rx.recv().await.unwrap();
         let mut arr = [0;2];
+        arr.clone_from_slice(&msg[2..]);
         let valor_nuevo = <u16>::from_be_bytes(arr);
 
         if msg[0] == 0xA3 {
@@ -37,7 +38,6 @@ pub async fn tnr_handler(
 
         if msg[0] == 0x23 {
             if verbose { println!("Se guardó {} en {}", valor_nuevo, addr); }
-            arr.clone_from_slice(&msg[2..]);
             registros[addr] = valor_nuevo;
             
             if addr == 5 { power_enable(valor_nuevo, &mut power_enable_pin, verbose); }

@@ -63,7 +63,7 @@ async fn handle_connection(
         let n_bytes = socket.read(&mut buffer).await.unwrap();
 
         if n_bytes != 4 { 
-            if verbose { println!("Number of bytes is not 4"); }
+            //if verbose { println!("Number of bytes is not 4"); }
             continue; 
         }
 
