@@ -95,7 +95,7 @@ async fn handle_connection(
 
 fn iniciar_gpiod(){
     let mut child = Command::new("sudo")
-            .arg("gpiod")
+            .arg("pigpiod")
             .spawn()
             .expect("failed to launch gpiod");
 
