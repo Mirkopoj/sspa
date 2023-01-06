@@ -1,5 +1,6 @@
 use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncWriteExt,AsyncReadExt};
+use std::process::Command;
 
 use crate::spi::{spi_read, spi_write, dac_read, dac_write};
 use crate::tnr::tnr;
@@ -20,6 +21,9 @@ pub async fn run(
     let listener = TcpListener::bind("0.0.0.0:".to_string()+port).await.unwrap();
 
     if !quiet { println!("Server listening {}", listener.local_addr().unwrap()); }
+    
+    if verbose { println!("Server starting"); }
+    iniciar_gpiod();
 
     loop {
         let (socket, _) = listener.accept().await.unwrap();
@@ -87,4 +91,13 @@ async fn handle_connection(
             if !quiet { println!("Sent: {:X}", <u16>::from_be_bytes(valor)); }
         }
     }
+}
+
+fn iniciar_gpiod(){
+    let mut child = Command::new("sudo")
+            .arg("gpiod")
+            .spawn()
+            .expect("failed to launch gpiod");
+
+    child.wait().expect("Failed to wait on gpiod");
 }
