@@ -35,6 +35,10 @@ for bit in range(num_bits-1, -1, -1):
 
 import pigpio
 
+def end_sig(pi):
+  pi.wave_tx_stop()
+  pi.wave_delete(wid)
+
 pi = pigpio.pi()
 if not pi.connected:
   exit()
@@ -56,9 +60,12 @@ if wid >= 0:
   else:
     for i in range(0,int(sys.argv[3])):
       pi.wave_send_once(wid)
-  sys.stdin.readline()
-  pi.wave_tx_stop()
-  pi.wave_delete(wid)
+  try:
+    sys.stdin.readline()
+  except KeyboardInterrupt:
+    end_sig(pi)
+
+  end_sig(pi)
 
 for g in gpios:
   pi.write(g, 0)
