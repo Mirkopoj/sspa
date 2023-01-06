@@ -153,7 +153,7 @@ async fn ejecutar_señal(bit_time: u16, count: u16) -> Señal {
         .arg("-c")
         .arg("3")
         .arg("python3")
-        .arg("gen_tnr.py")
+        .arg("/opt/sspa/gen_tnr.py")
         .arg("wave_file")
         .arg(bit_time)
         .arg(count)
