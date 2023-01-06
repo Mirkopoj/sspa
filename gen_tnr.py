@@ -35,7 +35,7 @@ for bit in range(num_bits-1, -1, -1):
 
 import pigpio
 
-def end_sig(pi):
+def end_sig(pi, wid):
   pi.wave_tx_stop()
   pi.wave_delete(wid)
 
@@ -63,9 +63,9 @@ if wid >= 0:
   try:
     sys.stdin.readline()
   except KeyboardInterrupt:
-    end_sig(pi)
+    end_sig(pi, wid)
 
-  end_sig(pi)
+  end_sig(pi, wid)
 
 for g in gpios:
   pi.write(g, 0)
