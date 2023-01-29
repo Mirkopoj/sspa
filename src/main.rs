@@ -97,7 +97,6 @@ fn imprimir_ayuda(){
     println!("USAGE:");
     println!("\tsspa");
     println!("\tsspa [OPTION]...");
-    println!("\tsspa [OPTION]... [FILE]...");
     println!();
     println!("OPTIONS:");
     println!("\t-h --help\t\tPrints this page and exit");
