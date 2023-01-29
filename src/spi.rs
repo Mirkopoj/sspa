@@ -8,7 +8,7 @@ pub async fn spi_handler(
     mut rx: tokio::sync::mpsc::Receiver<[u8;5]>,
     tx: tokio::sync::broadcast::Sender<[u8;2]>
 ){
-    let spi = Spi::new(Bus::Spi0, SlaveSelect::Ss0, 1000000, Mode::Mode0)
+    let spi = Spi::new(Bus::Spi0, SlaveSelect::Ss0, 100000, Mode::Mode1)
         .expect("Falló abrir spi");
     let mut buffer = [0;2];
 
@@ -27,7 +27,6 @@ pub async fn spi_handler(
                 println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
             }
         }
-        sleep(Duration::from_millis(50));
         spi.transfer(&mut buffer, &[0;2]).unwrap();
         if verbose { 
             println!("Spi sent: 0"); 
