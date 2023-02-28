@@ -125,7 +125,7 @@ async fn generar_archivo_señal(
     let ceros_cola_rf = (((periodo - ancho_del_pulso) + margen_final )/ bit_time) as usize;
 
     let tnr = 
-        String::from("4 ")+
+        String::from("27 ")+
         &String::from_utf8(vec![b'1'; unos_tnr]) .unwrap()+
         &String::from_utf8(vec![b'0'; ceros_tnr]) .unwrap();
 
