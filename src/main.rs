@@ -51,7 +51,7 @@ async fn main() {
                 }
             },
             "-V" | "--version" => {
-                println!("v0.1.1");
+                println!("v0.1.2");
                 quit = true;
                 break;
             },
@@ -97,7 +97,6 @@ fn imprimir_ayuda(){
     println!("USAGE:");
     println!("\tsspa");
     println!("\tsspa [OPTION]...");
-    println!("\tsspa [OPTION]... [FILE]...");
     println!();
     println!("OPTIONS:");
     println!("\t-h --help\t\tPrints this page and exit");

@@ -17,7 +17,6 @@ chmod +x sspa_install.sh
 ```
 sspa
 sspa [OPTION]...
-sspa [OPTION]... [FILE]...
 
 OPTIONS:
 	-h --help		Prints this page and exit
