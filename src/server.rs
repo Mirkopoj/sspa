@@ -76,7 +76,7 @@ async fn handle_connection(
         if !quiet { println!("Received: {:X}", mensaje); }
 
         let respuesta = match mensaje & 0x7F000000 {
-            0x32000000 => { Some(spi_read(mensaje, &mut spi_rx, &spi_tx).await) },
+            0x3C000000 => { Some(spi_read(mensaje, &mut spi_rx, &spi_tx).await) },
             0x25000000 => { Some(spi_write(mensaje, &mut spi_rx, &spi_tx).await) },
             0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx).await) },
             0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx).await) },
