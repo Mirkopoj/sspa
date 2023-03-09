@@ -23,6 +23,7 @@ async fn main() {
     let mut quiet = false;
     let mut quit = false;
     let mut port = "8000";
+    let mut little_endian = false;
 
     let mut arg = args.iter().peekable();
     arg.next();
@@ -44,6 +45,9 @@ async fn main() {
             "-q" | "--quiet" => {
                 quiet = true;
             },
+            "-l" | "--little-endian" => {
+                little_endian = true;
+            },
             "-p" | "--port" => {
                 port = match arg.next_if(|&x| x.parse::<u16>().is_ok() ) {
                     Some(n) => { n },
@@ -51,7 +55,7 @@ async fn main() {
                 }
             },
             "-V" | "--version" => {
-                println!("v0.1.2");
+                println!("v0.1.3");
                 quit = true;
                 break;
             },
@@ -87,7 +91,7 @@ async fn main() {
             tnr_handler(verbose, rx_tnr, tx_tnr).await;
         });
 
-        run(verbose, quiet, port, spi_rx, spi_tx, dac_rx, dac_tx, tnr_rx, tnr_tx).await;
+        run(verbose, quiet, port, spi_rx, spi_tx, dac_rx, dac_tx, tnr_rx, tnr_tx, little_endian).await;
     }
 }
 
@@ -103,6 +107,7 @@ fn imprimir_ayuda(){
     println!("\t-u --update\t\tUpdates binaries and exit");
     println!("\t-v --verbose\t\tExplain what is being done");
     println!("\t-q --quiet\t\tDo no log to stdout, will overwrite --verbose");
+    println!("\t-l --little-endian\t\tChange net byte order from BigEndian to LittleEndian");
     println!("\t-p --port\t\tEspecify a port for the TCP server to listen at, 8000 by default");
     println!("\t-V --version\t\tPrints version information and exit");
     println!();

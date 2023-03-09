@@ -14,7 +14,8 @@ pub async fn run(
     dac_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
     tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
-    tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>
+    tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    little_endian: bool
 ) {
     if verbose { println!("Server starting"); }
 
@@ -45,7 +46,8 @@ pub async fn run(
                 dac_rx_clone,
                 dac_tx_clone,
                 tnr_rx_clone,
-                tnr_tx_clone
+                tnr_tx_clone,
+                little_endian
             ).await;
         });
     }
@@ -60,7 +62,8 @@ async fn handle_connection(
     mut dac_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
     mut tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
-    tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>
+    tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    little_endian: bool
 ) {
     loop {
         let mut buffer = [0; 4];
@@ -72,7 +75,7 @@ async fn handle_connection(
             continue; 
         }
 
-        let mensaje = <u32>::from_be_bytes(buffer);
+        let mensaje = if little_endian { <u32>::from_le_bytes(buffer) } else { <u32>::from_be_bytes(buffer) };
         if !quiet { println!("Received: {:X}", mensaje); }
 
         let respuesta = match mensaje & 0x7F000000 {
@@ -89,7 +92,12 @@ async fn handle_connection(
 
         if let Some(valor) = respuesta {
             let _ = socket.write_all(&valor).await;
-            if !quiet { println!("Sent: {:X}", <u16>::from_be_bytes(valor)); }
+            if !quiet { 
+                println!("Sent: {:X}",
+                                 if little_endian { <u16>::from_le_bytes(valor) }
+                                 else { <u16>::from_be_bytes(valor) }
+                                 ); 
+            }
         }
     }
 }
