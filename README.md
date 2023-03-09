@@ -23,6 +23,7 @@ OPTIONS:
 	-u --update		Updates binaries and exit
 	-v --verbose		Explain what is being done
 	-q --quiet		Do no log to stdout, will overwrite --verbose
+   -l --little-endian		Change net byte order from BigEndian to LittleEndian
 	-p --port		Especify a port for the TCP server to listen at, 8000 by default
 	-V --version		Prints version information and exit
 

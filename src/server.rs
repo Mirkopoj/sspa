@@ -91,6 +91,7 @@ async fn handle_connection(
         };
 
         if let Some(valor) = respuesta {
+            let valor = invertir(valor, little_endian);
             let _ = socket.write_all(&valor).await;
             if !quiet { 
                 println!("Sent: {:X}",
@@ -116,4 +117,12 @@ fn iniciar_gpiod(){
             .expect("failed to launch gpiod");
 
     child.wait().expect("Failed to wait on gpiod");
+}
+fn invertir(valor: [u8;2], little_endian: bool) -> [u8;2] {
+    let mut ret = valor;
+    if little_endian {
+        ret[0] = valor[1];
+        ret[1] = valor[0];
+    }
+    ret
 }
