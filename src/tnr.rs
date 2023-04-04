@@ -11,6 +11,8 @@ pub async fn tnr_handler(
     tx: tokio::sync::broadcast::Sender<[u8;2]>
 ){
     let mut registros = [1;6];
+    registros[0] = 100;
+    registros[1] = 10;
     
     let gpio = Gpio::new().unwrap();
     let mut power_enable_pin = gpio.get(4).unwrap().into_output();
