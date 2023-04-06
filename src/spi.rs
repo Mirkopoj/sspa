@@ -254,9 +254,11 @@ async fn pwm(
     mut pin: rppal::gpio::OutputPin
 ){
     loop {
-        let duty = rx.recv().await.unwrap() as f64;
-        pin.set_pwm_frequency(5000.0, duty/1024.0).unwrap();
-        //pin.set_pwm(Duration::from_micros(1024), Duration::from_micros(duty as u64)).unwrap();
+        let duty = rx.recv().await.unwrap();
+        pin.set_pwm_frequency(10000.0, duty as f64/1024.0).unwrap();
+        if duty == 0 {
+            pin.clear_pwm().unwrap();
+        }
     }
 }
 
