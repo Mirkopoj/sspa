@@ -18,7 +18,8 @@ pub async fn run(
     tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
-    little_endian: bool
+    little_endian: bool,
+    hat: bool
 ) {
     if verbose { println!("Server starting"); }
 
@@ -54,7 +55,8 @@ pub async fn run(
                 tnr_tx_clone,
                 relay_rx_clone,
                 relay_tx_clone,
-                little_endian
+                little_endian,
+                hat
             ).await;
         });
     }
@@ -72,7 +74,8 @@ async fn handle_connection(
     tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     mut relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
-    little_endian: bool
+    little_endian: bool,
+    hat: bool
 ) {
     loop {
         let mut buffer = [0; 4];
@@ -91,8 +94,8 @@ async fn handle_connection(
         let respuesta = match mensaje & 0x7F000000 {
             0x3C000000 => { Some(spi_read(mensaje, &mut spi_rx, &spi_tx).await) },
             0x25000000 => { Some(spi_write(mensaje, &mut spi_rx, &spi_tx).await) },
-            0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx).await) },
-            0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx).await) },
+            0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx, hat).await) },
+            0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx, hat).await) },
             0x33000000 | 0x23000000 | 0xA3000000 => { Some(tnr(mensaje, &mut tnr_rx, &tnr_tx).await) },
             0x2D000000 => { Some(relay(mensaje, &mut relay_rx, &relay_tx).await) },
             _ => { 

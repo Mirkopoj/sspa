@@ -27,6 +27,7 @@ async fn main() {
     let mut quit = false;
     let mut port = "8000";
     let mut little_endian = false;
+    let mut hat = false;
 
     let mut arg = args.iter().peekable();
     arg.next();
@@ -51,6 +52,9 @@ async fn main() {
             "-l" | "--little-endian" => {
                 little_endian = true;
             },
+            "-H" | "--hat" => {
+                hat = true;
+            },
             "-p" | "--port" => {
                 port = match arg.next_if(|&x| x.parse::<u16>().is_ok() ) {
                     Some(n) => { n },
@@ -58,7 +62,7 @@ async fn main() {
                 }
             },
             "-V" | "--version" => {
-                println!("v0.2.2");
+                println!("v0.3.0");
                 quit = true;
                 break;
             },
@@ -90,7 +94,7 @@ async fn main() {
         });
 
         tokio::spawn(async move {
-            dac_handler(verbose, rx_dac, tx_dac).await;
+            dac_handler(hat, verbose, rx_dac, tx_dac).await;
         });
 
         tokio::spawn(async move {
@@ -113,7 +117,8 @@ async fn main() {
             tnr_tx,
             relay_rx,
             relay_tx,
-            little_endian).await;
+            little_endian,
+            hat).await;
     }
 }
 
