@@ -15,6 +15,9 @@ use spi::{spi_handler, dac_handler};
 mod server;
 use server::run;
 
+mod relay;
+use relay::relay_handler;
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = env::args().collect();
@@ -79,6 +82,9 @@ async fn main() {
         let (tnr_tx, rx_tnr) = mpsc::channel(16);
         let (tx_tnr, tnr_rx) = broadcast::channel(16);
 
+        let (relay_tx, rx_relay) = mpsc::channel(16);
+        let (tx_relay, relay_rx) = broadcast::channel(16);
+
         tokio::spawn(async move {
             spi_handler(verbose, rx_spi, tx_spi).await;
         });
@@ -91,7 +97,23 @@ async fn main() {
             tnr_handler(verbose, rx_tnr, tx_tnr).await;
         });
 
-        run(verbose, quiet, port, spi_rx, spi_tx, dac_rx, dac_tx, tnr_rx, tnr_tx, little_endian).await;
+        tokio::spawn(async move {
+            relay_handler(verbose, rx_relay, tx_relay).await;
+        });
+
+        run(
+            verbose,
+            quiet,
+            port,
+            spi_rx,
+            spi_tx,
+            dac_rx,
+            dac_tx,
+            tnr_rx,
+            tnr_tx,
+            relay_rx,
+            relay_tx,
+            little_endian).await;
     }
 }
 

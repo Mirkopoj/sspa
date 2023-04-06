@@ -4,6 +4,7 @@ use std::process::Command;
 
 use crate::spi::{spi_read, spi_write, dac_read, dac_write};
 use crate::tnr::tnr;
+use crate::relay::relay;
 
 pub async fn run(
     verbose: bool,
@@ -15,6 +16,8 @@ pub async fn run(
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
     tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     little_endian: bool
 ) {
     if verbose { println!("Server starting"); }
@@ -35,6 +38,8 @@ pub async fn run(
         let dac_tx_clone =  dac_tx.clone();
         let tnr_rx_clone =  tnr_rx.resubscribe();
         let tnr_tx_clone =  tnr_tx.clone();
+        let relay_rx_clone =  relay_rx.resubscribe();
+        let relay_tx_clone =  relay_tx.clone();
 
         tokio::spawn(async move {
             handle_connection(
@@ -47,6 +52,8 @@ pub async fn run(
                 dac_tx_clone,
                 tnr_rx_clone,
                 tnr_tx_clone,
+                relay_rx_clone,
+                relay_tx_clone,
                 little_endian
             ).await;
         });
@@ -63,6 +70,8 @@ async fn handle_connection(
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
     mut tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    mut relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     little_endian: bool
 ) {
     loop {
@@ -85,6 +94,7 @@ async fn handle_connection(
             0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx).await) },
             0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx).await) },
             0x33000000 | 0x23000000 | 0xA3000000 => { Some(tnr(mensaje, &mut tnr_rx, &tnr_tx).await) },
+            0x2D000000 => { Some(relay(mensaje, &mut relay_rx, &relay_tx).await) },
             _ => { 
                 if verbose { println!("Invalid Command"); }
                 None 
