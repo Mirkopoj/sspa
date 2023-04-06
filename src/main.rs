@@ -58,7 +58,7 @@ async fn main() {
                 }
             },
             "-V" | "--version" => {
-                println!("v0.2.1");
+                println!("v0.2.2");
                 quit = true;
                 break;
             },
