@@ -2,7 +2,8 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncWriteExt,AsyncReadExt};
 use std::process::Command;
 
-use crate::spi::{spi_read, spi_write, dac_read, dac_write};
+use crate::spi::{spi_read, spi_write};
+use crate::dac::{dac_read, dac_write};
 use crate::tnr::tnr;
 use crate::relay::relay;
 
