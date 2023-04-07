@@ -138,6 +138,7 @@ fn imprimir_ayuda(){
     println!("\t-v --verbose\t\tExplain what is being done");
     println!("\t-q --quiet\t\tDo no log to stdout, will overwrite --verbose");
     println!("\t-l --little-endian\t\tChange net byte order from BigEndian to LittleEndian");
+    println!("\t-H --hat\t\tChange dac functionality to use software pwm as analog out");
     println!("\t-p --port\t\tEspecify a port for the TCP server to listen at, 8000 by default");
     println!("\t-V --version\t\tPrints version information and exit");
     println!();
