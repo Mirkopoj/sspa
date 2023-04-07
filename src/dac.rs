@@ -90,7 +90,7 @@ async fn pwm_dac_handler(
         ).await;
     });
     let (tx3, rx3) = tokio::sync::mpsc::channel(16);
-    let pin = gpio.get(5).expect("Falló gettear el gpio 5").into_output();
+    let pin = gpio.get(19).expect("Falló gettear el gpio 19").into_output();
     tokio::spawn(async move {
         pwm(
             rx3,
@@ -98,7 +98,7 @@ async fn pwm_dac_handler(
         ).await;
     });
     let (tx4, rx4) = tokio::sync::mpsc::channel(16);
-    let pin = gpio.get(26).expect("Falló gettear el gpio 26").into_output();
+    let pin = gpio.get(13).expect("Falló gettear el gpio 13").into_output();
     tokio::spawn(async move {
         pwm(
             rx4,
@@ -106,7 +106,7 @@ async fn pwm_dac_handler(
         ).await;
     });
     let (tx5, rx5) = tokio::sync::mpsc::channel(16);
-    let pin = gpio.get(19).expect("Falló gettear el gpio 19").into_output();
+    let pin = gpio.get(6).expect("Falló gettear el gpio 6").into_output();
     tokio::spawn(async move {
         pwm(
             rx5,
@@ -114,7 +114,7 @@ async fn pwm_dac_handler(
         ).await;
     });
     let (tx6, rx6) = tokio::sync::mpsc::channel(16);
-    let pin = gpio.get(13).expect("Falló gettear el gpio 13").into_output();
+    let pin = gpio.get(5).expect("Falló gettear el gpio 5").into_output();
     tokio::spawn(async move {
         pwm(
             rx6,
@@ -122,7 +122,7 @@ async fn pwm_dac_handler(
         ).await;
     });
     let (tx7, rx7) = tokio::sync::mpsc::channel(16);
-    let pin = gpio.get(6).expect("Falló gettear el gpio 6").into_output();
+    let pin = gpio.get(26).expect("Falló gettear el gpio 26").into_output();
     tokio::spawn(async move {
         pwm(
             rx7,
