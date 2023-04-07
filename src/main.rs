@@ -10,7 +10,10 @@ mod tnr;
 use tnr::tnr_handler;
 
 mod spi;
-use spi::{spi_handler, dac_handler};
+use spi::spi_handler;
+
+mod dac;
+use dac::dac_handler;
 
 mod server;
 use server::run;
