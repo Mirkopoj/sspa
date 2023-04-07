@@ -167,11 +167,10 @@ async fn pwm_dac_handler(
             }
             _ => {
                 if verbose { println!("Address out of range"); }
-                tx.send([0xF0,0xF0]).unwrap(); 
+                respuesta = [0xF0, 0xF0];
             }
         }
 
-        respuesta.clone_from_slice(&msg[1..]);
         tx.send(respuesta).unwrap();
     }
 }
