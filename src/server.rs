@@ -17,8 +17,10 @@ pub async fn run(
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
     tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
-    relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
-    relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    reset_relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    reset_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    program_relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    program_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     little_endian: bool,
     hat: bool
 ) {
@@ -40,8 +42,10 @@ pub async fn run(
         let dac_tx_clone =  dac_tx.clone();
         let tnr_rx_clone =  tnr_rx.resubscribe();
         let tnr_tx_clone =  tnr_tx.clone();
-        let relay_rx_clone =  relay_rx.resubscribe();
-        let relay_tx_clone =  relay_tx.clone();
+        let reset_relay_rx_clone =  reset_relay_rx.resubscribe();
+        let reset_relay_tx_clone =  reset_relay_tx.clone();
+        let program_relay_rx_clone =  program_relay_rx.resubscribe();
+        let program_relay_tx_clone =  program_relay_tx.clone();
 
         tokio::spawn(async move {
             handle_connection(
@@ -54,8 +58,10 @@ pub async fn run(
                 dac_tx_clone,
                 tnr_rx_clone,
                 tnr_tx_clone,
-                relay_rx_clone,
-                relay_tx_clone,
+                reset_relay_rx_clone,
+                reset_relay_tx_clone,
+                program_relay_rx_clone,
+                program_relay_tx_clone,
                 little_endian,
                 hat
             ).await;
@@ -73,8 +79,10 @@ async fn handle_connection(
     dac_tx: tokio::sync::mpsc::Sender<[u8;3]>,
     mut tnr_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     tnr_tx: tokio::sync::mpsc::Sender<[u8;4]>,
-    mut relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
-    relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    mut reset_relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    reset_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    mut program_relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    program_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     little_endian: bool,
     hat: bool
 ) {
@@ -98,7 +106,8 @@ async fn handle_connection(
             0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx, hat).await) },
             0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx, hat).await) },
             0x33000000 | 0x23000000 | 0xA3000000 => { Some(tnr(mensaje, &mut tnr_rx, &tnr_tx).await) },
-            0x2D000000 => { Some(relay(mensaje, &mut relay_rx, &relay_tx).await) },
+            0x2D000000 => { Some(relay(mensaje, &mut reset_relay_rx, &reset_relay_tx).await) },
+            0x3D000000 => { Some(relay(mensaje, &mut program_relay_rx, &program_relay_tx).await) },
             _ => { 
                 if verbose { println!("Invalid Command"); }
                 None 

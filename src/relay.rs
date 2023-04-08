@@ -3,10 +3,11 @@ use rppal::gpio::{Gpio, OutputPin};
 pub async fn relay_handler(
     verbose: bool,
     mut rx: tokio::sync::mpsc::Receiver<[u8;4]>,
-    tx: tokio::sync::broadcast::Sender<[u8;2]>
+    tx: tokio::sync::broadcast::Sender<[u8;2]>,
+    pin: u8
 ){
     let gpio = Gpio::new().unwrap();
-    let mut relay_pin = gpio.get(12).unwrap().into_output();
+    let mut relay_pin = gpio.get(pin).unwrap().into_output();//reset 12, program 0
     relay_pin.set_low();
 
     loop {

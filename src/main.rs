@@ -65,7 +65,7 @@ async fn main() {
                 }
             },
             "-V" | "--version" => {
-                println!("v0.3.3");
+                println!("v0.4.0");
                 quit = true;
                 break;
             },
@@ -89,8 +89,11 @@ async fn main() {
         let (tnr_tx, rx_tnr) = mpsc::channel(16);
         let (tx_tnr, tnr_rx) = broadcast::channel(16);
 
-        let (relay_tx, rx_relay) = mpsc::channel(16);
-        let (tx_relay, relay_rx) = broadcast::channel(16);
+        let (reset_relay_tx, rx_reset_relay) = mpsc::channel(16);
+        let (tx_reset_relay, reset_relay_rx) = broadcast::channel(16);
+
+        let (program_relay_tx, rx_program_relay) = mpsc::channel(16);
+        let (tx_program_relay, program_relay_rx) = broadcast::channel(16);
 
         tokio::spawn(async move {
             spi_handler(verbose, rx_spi, tx_spi).await;
@@ -105,7 +108,11 @@ async fn main() {
         });
 
         tokio::spawn(async move {
-            relay_handler(verbose, rx_relay, tx_relay).await;
+            relay_handler(verbose, rx_reset_relay, tx_reset_relay, 12).await;
+        });
+
+        tokio::spawn(async move {
+            relay_handler(verbose, rx_program_relay, tx_program_relay, 0).await;
         });
 
         run(
@@ -118,8 +125,10 @@ async fn main() {
             dac_tx,
             tnr_rx,
             tnr_tx,
-            relay_rx,
-            relay_tx,
+            reset_relay_rx,
+            reset_relay_tx,
+            program_relay_rx,
+            program_relay_tx,
             little_endian,
             hat).await;
     }
