@@ -35,7 +35,7 @@ pub async fn monitor_handler(
 
         tx.send(respuesta).unwrap();
 
-        monitor_pin.clear_interrupt();
+        monitor_pin.clear_interrupt().unwrap();
     }
 }
 
