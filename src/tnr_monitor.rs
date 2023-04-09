@@ -17,12 +17,23 @@ pub async fn monitor_handler(
         arr.clone_from_slice(&msg[2..]);
         let timeout_period = <u16>::from_be_bytes(arr) as u64;
 
+        let respuesta;
 
-        let respuesta = match monitor_pin
-            .poll_interrupt(
-                true,
-                Some(Duration::from_millis(timeout_period)))
-            .unwrap() {
+        loop {
+            match monitor_pin
+                .poll_interrupt(
+                    true,
+                    Some(Duration::from_millis(timeout_period)))
+             {
+                Ok(l) => { 
+                    respuesta = l;
+                    break;
+                },
+                Err(_) => { }
+            };
+        }
+
+        let respuesta = match respuesta {
                 Some(_) => { 
                     if verbose { println!("TnR found"); }
                     [0,1] 
