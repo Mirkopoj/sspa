@@ -9,10 +9,10 @@ pub async fn monitor_handler(
 ){
     let gpio = Gpio::new().unwrap();
     let mut monitor_pin = gpio.get(1).unwrap().into_input();
-    monitor_pin.set_interrupt(Trigger::RisingEdge).unwrap();
 
     loop {
         let msg = rx.recv().await.unwrap();
+        monitor_pin.set_interrupt(Trigger::RisingEdge).unwrap();
         let mut arr = [0;2];
         arr.clone_from_slice(&msg[2..]);
         let timeout_period = <u16>::from_be_bytes(arr) as u64;
@@ -34,6 +34,8 @@ pub async fn monitor_handler(
         };
 
         tx.send(respuesta).unwrap();
+
+        monitor_pin.clear_interrupt();
     }
 }
 
