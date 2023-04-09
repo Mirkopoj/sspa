@@ -6,6 +6,7 @@ use crate::spi::{spi_read, spi_write};
 use crate::dac::{dac_read, dac_write};
 use crate::tnr::tnr;
 use crate::relay::relay;
+use crate::tnr_monitor::tnr_monitor;
 
 pub async fn run(
     verbose: bool,
@@ -21,6 +22,8 @@ pub async fn run(
     reset_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     program_relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     program_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    monitor_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    monitor_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     little_endian: bool,
     hat: bool
 ) {
@@ -46,6 +49,8 @@ pub async fn run(
         let reset_relay_tx_clone =  reset_relay_tx.clone();
         let program_relay_rx_clone =  program_relay_rx.resubscribe();
         let program_relay_tx_clone =  program_relay_tx.clone();
+        let monitor_rx_clone =  monitor_rx.resubscribe();
+        let monitor_tx_clone =  monitor_tx.clone();
 
         tokio::spawn(async move {
             handle_connection(
@@ -62,6 +67,8 @@ pub async fn run(
                 reset_relay_tx_clone,
                 program_relay_rx_clone,
                 program_relay_tx_clone,
+                monitor_rx_clone,
+                monitor_tx_clone,
                 little_endian,
                 hat
             ).await;
@@ -83,6 +90,8 @@ async fn handle_connection(
     reset_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     mut program_relay_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
     program_relay_tx: tokio::sync::mpsc::Sender<[u8;4]>,
+    mut monitor_rx: tokio::sync::broadcast::Receiver<[u8;2]>,
+    monitor_tx: tokio::sync::mpsc::Sender<[u8;4]>,
     little_endian: bool,
     hat: bool
 ) {
@@ -108,6 +117,7 @@ async fn handle_connection(
             0x33000000 | 0x23000000 | 0xA3000000 => { Some(tnr(mensaje, &mut tnr_rx, &tnr_tx).await) },
             0x2D000000 => { Some(relay(mensaje, &mut reset_relay_rx, &reset_relay_tx).await) },
             0x3D000000 => { Some(relay(mensaje, &mut program_relay_rx, &program_relay_tx).await) },
+            0x4D000000 => { Some(tnr_monitor(mensaje, &mut monitor_rx, &monitor_tx).await) },
             _ => { 
                 if verbose { println!("Invalid Command"); }
                 None 

@@ -21,6 +21,9 @@ use server::run;
 mod relay;
 use relay::relay_handler;
 
+mod tnr_monitor;
+use tnr_monitor::monitor_handler;
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = env::args().collect();
@@ -65,7 +68,7 @@ async fn main() {
                 }
             },
             "-V" | "--version" => {
-                println!("v0.4.0");
+                println!("v0.5.0");
                 quit = true;
                 break;
             },
@@ -95,6 +98,9 @@ async fn main() {
         let (program_relay_tx, rx_program_relay) = mpsc::channel(16);
         let (tx_program_relay, program_relay_rx) = broadcast::channel(16);
 
+        let (monitor_tx, rx_monitor) = mpsc::channel(16);
+        let (tx_monitor, monitor_rx) = broadcast::channel(16);
+
         tokio::spawn(async move {
             spi_handler(verbose, rx_spi, tx_spi).await;
         });
@@ -115,6 +121,10 @@ async fn main() {
             relay_handler(verbose, rx_program_relay, tx_program_relay, 0).await;
         });
 
+        tokio::spawn(async move {
+            monitor_handler(verbose, rx_monitor, tx_monitor).await;
+        });
+
         run(
             verbose,
             quiet,
@@ -129,6 +139,8 @@ async fn main() {
             reset_relay_tx,
             program_relay_rx,
             program_relay_tx,
+            monitor_rx,
+            monitor_tx,
             little_endian,
             hat).await;
     }
