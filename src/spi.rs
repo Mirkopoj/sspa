@@ -71,5 +71,5 @@ fn parity_set(dato: u32) -> u32 {
     let msgl = dato & 0x0000FFFF;
     let bith = (msgh.count_ones()%2) << 31;
     let bitl = (msgl.count_ones()%2) << 15;
-    dato | bith | bitl
+    dato ^ bith ^ bitl
 }
