@@ -12,37 +12,46 @@ pub async fn monitor_handler(
 
     loop {
         let msg = rx.recv().await.unwrap();
-        monitor_pin.set_interrupt(Trigger::RisingEdge).unwrap();
-        let mut arr = [0;2];
-        arr.clone_from_slice(&msg[2..]);
-        let timeout_period = <u16>::from_be_bytes(arr) as u64;
-
         let respuesta;
+        if msg[3] != 0 {
+            if monitor_pin.is_high() {
+                respuesta = [0,1];
+            } else {
+                respuesta = [0,0];
+            }
+        } else {
+            monitor_pin.set_interrupt(Trigger::RisingEdge).unwrap();
+            let mut arr = [0;2];
+            arr.clone_from_slice(&msg[2..]);
+            let timeout_period = <u16>::from_be_bytes(arr) as u64;
 
-        loop {
-            match monitor_pin
-                .poll_interrupt(
-                    true,
-                    Some(Duration::from_millis(timeout_period)))
-             {
-                Ok(l) => { 
-                    respuesta = l;
-                    break;
-                },
-                Err(_) => { }
+            let pin_ret;
+
+            loop {
+                match monitor_pin
+                    .poll_interrupt(
+                        true,
+                        Some(Duration::from_millis(timeout_period)))
+                 {
+                    Ok(l) => { 
+                        pin_ret = l;
+                        break;
+                    },
+                    Err(_) => { }
+                };
+            }
+
+            respuesta = match pin_ret {
+                    Some(_) => { 
+                        if verbose { println!("TnR found"); }
+                        [0,1] 
+                    },
+                    None => {
+                        if verbose { println!("TnR not found"); }
+                        [0,0] 
+                    },
             };
         }
-
-        let respuesta = match respuesta {
-                Some(_) => { 
-                    if verbose { println!("TnR found"); }
-                    [0,1] 
-                },
-                None => {
-                    if verbose { println!("TnR not found"); }
-                    [0,0] 
-                },
-        };
 
         tx.send(respuesta).unwrap();
 
