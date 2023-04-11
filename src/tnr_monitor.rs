@@ -14,12 +14,16 @@ pub async fn monitor_handler(
         let msg = rx.recv().await.unwrap();
         let respuesta;
         if msg[1] != 0 {
+            if verbose { println!("Monitoring level"); }
             if monitor_pin.is_high() {
+                if verbose { println!("TnR found"); }
                 respuesta = [0,1];
             } else {
+                if verbose { println!("TnR not found"); }
                 respuesta = [0,0];
             }
         } else {
+            if verbose { println!("Monitoring change"); }
             monitor_pin.set_interrupt(Trigger::RisingEdge).unwrap();
             let mut arr = [0;2];
             arr.clone_from_slice(&msg[2..]);
