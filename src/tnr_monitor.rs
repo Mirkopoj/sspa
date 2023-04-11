@@ -13,7 +13,7 @@ pub async fn monitor_handler(
     loop {
         let msg = rx.recv().await.unwrap();
         let respuesta;
-        if msg[3] != 0 {
+        if msg[1] != 0 {
             if monitor_pin.is_high() {
                 respuesta = [0,1];
             } else {
