@@ -4,6 +4,8 @@ use tokio::sync::{mpsc, broadcast};
 
 extern crate unicode_segmentation;
 
+const VERSION: &str = "v0.5.5";
+
 const CARGOPATH: &str = "/opt/sspa";
 
 mod tnr;
@@ -68,7 +70,7 @@ async fn main() {
                 }
             },
             "-V" | "--version" => {
-                println!("v0.5.3");
+                println!("{}", VERSION);
                 quit = true;
                 break;
             },

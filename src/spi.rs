@@ -1,4 +1,9 @@
+use std::time::Duration;
+use std::thread::sleep;
+
 use rppal::spi::*;
+
+const SPI_INTER_TRANSACTION_GAP: Duration = Duration::from_micros(50);
 
 /* SPI CON EL PIC */
 pub async fn spi_handler(
@@ -14,18 +19,21 @@ pub async fn spi_handler(
         let msg = rx.recv().await.unwrap();
         
         spi.transfer(&mut buffer, &msg[1..3]).unwrap();
+        sleep(SPI_INTER_TRANSACTION_GAP);
         if verbose { 
             println!("Spi sent: {:02X}{:02X}", msg[1], msg[2]); 
             println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
         }
         if msg[0] >= 2 {
             spi.transfer(&mut buffer, &msg[3..5]).unwrap();
+            sleep(SPI_INTER_TRANSACTION_GAP);
             if verbose { 
                 println!("Spi sent: {:02X}{:02X}", msg[3], msg[4]); 
                 println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
             }
         }
         spi.transfer(&mut buffer, &[0;2]).unwrap();
+        sleep(SPI_INTER_TRANSACTION_GAP);
         if verbose { 
             println!("Spi sent: 0"); 
             println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
