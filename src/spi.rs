@@ -3,7 +3,7 @@ use std::thread::sleep;
 
 use rppal::spi::*;
 
-const SPI_INTER_TRANSACTION_GAP: Duration = Duration::from_micros(50);
+const SPI_INTER_TRANSACTION_GAP: Duration = Duration::from_micros(100);
 
 /* SPI CON EL PIC */
 pub async fn spi_handler(
