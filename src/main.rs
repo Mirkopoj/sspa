@@ -4,7 +4,7 @@ use tokio::sync::{mpsc, broadcast};
 
 extern crate unicode_segmentation;
 
-const VERSION: &str = "v0.5.6";
+const VERSION: &str = "v0.5.7";
 
 const CARGOPATH: &str = "/opt/sspa";
 
@@ -36,6 +36,7 @@ async fn main() {
     let mut port = "8000";
     let mut little_endian = false;
     let mut hat = false;
+    let mut mega_hertz = false;
 
     let mut arg = args.iter().peekable();
     arg.next();
@@ -62,6 +63,9 @@ async fn main() {
             },
             "-H" | "--hat" => {
                 hat = true;
+            },
+            "-M" | "--mega-hertz" => {
+                mega_hertz = true;
             },
             "-p" | "--port" => {
                 port = match arg.next_if(|&x| x.parse::<u16>().is_ok() ) {
@@ -104,7 +108,7 @@ async fn main() {
         let (tx_monitor, monitor_rx) = broadcast::channel(16);
 
         tokio::spawn(async move {
-            spi_handler(verbose, rx_spi, tx_spi).await;
+            spi_handler(verbose, rx_spi, tx_spi, mega_hertz).await;
         });
 
         tokio::spawn(async move {
@@ -160,8 +164,9 @@ fn imprimir_ayuda(){
     println!("\t-u --update\t\tUpdates binaries and exit");
     println!("\t-v --verbose\t\tExplain what is being done");
     println!("\t-q --quiet\t\tDo no log to stdout, will overwrite --verbose");
-    println!("\t-l --little-endian\t\tChange net byte order from BigEndian to LittleEndian");
+    println!("\t-l --little-endian\tChange net byte order from BigEndian to LittleEndian");
     println!("\t-H --hat\t\tChange dac functionality to use software pwm as analog out");
+    println!("\t-M --mega-hertz\t\tChange spi clock frequency, from 100kHz to 1MHz");
     println!("\t-p --port\t\tEspecify a port for the TCP server to listen at, 8000 by default");
     println!("\t-V --version\t\tPrints version information and exit");
     println!();

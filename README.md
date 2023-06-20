@@ -19,14 +19,15 @@ sspa
 sspa [OPTION]...
 
 OPTIONS:
-	-h --help		Prints this page and exit
-	-u --update		Updates binaries and exit
-	-v --verbose		Explain what is being done
-	-q --quiet		Do no log to stdout, will overwrite --verbose
-   -l --little-endian		Change net byte order from BigEndian to LittleEndian
-   -H --hat		Change dac functionality to use software pwm as analog out
-	-p --port		Especify a port for the TCP server to listen at, 8000 by default
-	-V --version		Prints version information and exit
+    -h --help		Prints this page and exit
+    -u --update		Updates binaries and exit
+    -v --verbose		Explain what is being done
+    -q --quiet		Do no log to stdout, will overwrite --verbose
+    -l --little-endian		Change net byte order from BigEndian to LittleEndian
+    -H --hat		Change dac functionality to use software pwm as analog out
+    -M --mega-hertz		Change spi clock frequency, from 100kHz to 1MHz
+    -p --port		Especify a port for the TCP server to listen at, 8000 by default
+    -V --version		Prints version information and exit
 
 NOTE: you can uninstall the program at any time running:
 	sspa_uninstall.sh

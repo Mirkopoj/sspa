@@ -9,9 +9,11 @@ const SPI_INTER_TRANSACTION_GAP: Duration = Duration::from_micros(100);
 pub async fn spi_handler(
     verbose: bool,
     mut rx: tokio::sync::mpsc::Receiver<[u8;5]>,
-    tx: tokio::sync::broadcast::Sender<[u8;2]>
+    tx: tokio::sync::broadcast::Sender<[u8;2]>,
+    mega_hertz: bool
 ){
-    let spi = Spi::new(Bus::Spi0, SlaveSelect::Ss0, 100000, Mode::Mode1)
+    let clock_speed = if mega_hertz { 1000000 } else { 100000 };
+    let spi = Spi::new(Bus::Spi0, SlaveSelect::Ss0, clock_speed, Mode::Mode1)
         .expect("Falló abrir spi");
     let mut buffer = [0;2];
 
