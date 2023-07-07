@@ -26,7 +26,7 @@ pub async fn spi_handler(
             println!("Spi sent: {:02X}{:02X}", msg[1], msg[2]); 
             println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
         }
-        if msg[0] >= 2 {
+        if msg[0] > 1 {
             spi.transfer(&mut buffer, &msg[3..5]).unwrap();
             sleep(SPI_INTER_TRANSACTION_GAP);
             if verbose { 
@@ -34,11 +34,13 @@ pub async fn spi_handler(
                 println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
             }
         }
-        spi.transfer(&mut buffer, &[0;2]).unwrap();
-        sleep(SPI_INTER_TRANSACTION_GAP);
-        if verbose { 
-            println!("Spi sent: 0"); 
-            println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
+        if msg[0] > 0 {
+            spi.transfer(&mut buffer, &[0;2]).unwrap();
+            sleep(SPI_INTER_TRANSACTION_GAP);
+            if verbose { 
+                println!("Spi sent: 0"); 
+                println!("Spi got: {:02X}{:02X}", buffer[0], buffer[1]); 
+            }
         }
 
         tx.send(buffer).unwrap();
@@ -59,6 +61,14 @@ pub async fn spi_write(
     tx: &tokio::sync::mpsc::Sender<[u8;5]>
 ) -> [u8;2] {
     spi_core(2, msg, rx, tx).await
+}
+
+pub async fn spi_debug(
+    msg: u32,
+    rx: &mut tokio::sync::broadcast::Receiver<[u8;2]>,
+    tx: &tokio::sync::mpsc::Sender<[u8;5]>
+) -> [u8;2] {
+    spi_core(0, msg<<16, rx, tx).await
 }
 
 async fn spi_core(
