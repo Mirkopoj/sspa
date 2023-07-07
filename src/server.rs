@@ -112,7 +112,7 @@ async fn handle_connection(
         let respuesta = match mensaje & 0x7F000000 {
             0x3C000000 => { Some(spi_read(mensaje, &mut spi_rx, &spi_tx).await) },
             0x25000000 => { Some(spi_write(mensaje, &mut spi_rx, &spi_tx).await) },
-            0xDB000000 => { Some(spi_debug(mensaje, &mut spi_rx, &spi_tx).await) },
+            0x5B000000 => { Some(spi_debug(mensaje, &mut spi_rx, &spi_tx).await) },
             0x3A000000 => { Some(dac_read(mensaje, &mut dac_rx, &dac_tx, hat).await) },
             0x2A000000 => { Some(dac_write(mensaje, &mut dac_rx, &dac_tx, hat).await) },
             0x33000000 | 0x23000000 | 0xA3000000 => { Some(tnr(mensaje, &mut tnr_rx, &tnr_tx).await) },
