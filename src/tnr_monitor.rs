@@ -140,7 +140,6 @@ async fn counter(
         {
             Ok(_) => {
                 count +=1;
-                println!("Interrupt! counted {}", count);
             }
             Err(_) => {
                 if verbose {
