@@ -1,10 +1,10 @@
 use std::env;
 use std::process::Command;
-use tokio::sync::{mpsc, broadcast};
+use tokio::sync::{broadcast, mpsc};
 
 extern crate unicode_segmentation;
 
-const VERSION: &str = "v0.6.1";
+const VERSION: &str = "v0.7.0";
 
 const CARGOPATH: &str = "/opt/sspa";
 
@@ -46,49 +46,51 @@ async fn main() {
                 actualizar();
                 quit = true;
                 break;
-            },
+            }
             "-h" | "--help" => {
                 imprimir_ayuda();
                 quit = true;
                 break;
-            },
+            }
             "-v" | "--verbose" => {
                 verbose = true;
-            },
+            }
             "-q" | "--quiet" => {
                 quiet = true;
-            },
+            }
             "-l" | "--little-endian" => {
                 little_endian = true;
-            },
+            }
             "-H" | "--hat" => {
                 hat = true;
-            },
+            }
             "-M" | "--mega-hertz" => {
                 mega_hertz = true;
-            },
+            }
             "-p" | "--port" => {
-                port = match arg.next_if(|&x| x.parse::<u16>().is_ok() ) {
-                    Some(n) => { n },
-                    None => { port }
+                port = match arg.next_if(|&x| x.parse::<u16>().is_ok()) {
+                    Some(n) => n,
+                    None => port,
                 }
-            },
+            }
             "-V" | "--version" => {
                 println!("{}", VERSION);
                 quit = true;
                 break;
-            },
+            }
             _ => {
                 println!("Invalid Argument: {}", option);
                 quit = true;
                 break;
-            },
+            }
         }
     }
-    
-    if quiet { verbose = false; }
 
-    if !quit{
+    if quiet {
+        verbose = false;
+    }
+
+    if !quit {
         let (spi_tx, rx_spi) = mpsc::channel(16);
         let (tx_spi, spi_rx) = broadcast::channel(16);
 
@@ -148,11 +150,13 @@ async fn main() {
             monitor_rx,
             monitor_tx,
             little_endian,
-            hat).await;
+            hat,
+        )
+        .await;
     }
 }
 
-fn imprimir_ayuda(){
+fn imprimir_ayuda() {
     println!("Automatic board tester");
     println!();
     println!("USAGE:");
@@ -175,47 +179,47 @@ fn imprimir_ayuda(){
     println!();
 }
 
-fn actualizar(){
+fn actualizar() {
     let mut child = Command::new("sudo")
-            .arg("git")
-            .arg("pull")
-            .current_dir(CARGOPATH)
-            .spawn()
-            .expect("failed to execute git pull");
+        .arg("git")
+        .arg("pull")
+        .current_dir(CARGOPATH)
+        .spawn()
+        .expect("failed to execute git pull");
 
     child.wait().expect("Failed to wait on git pull");
 
     let mut child = Command::new("cargo")
-            .arg("update")
-            .current_dir(CARGOPATH)
-            .spawn()
-            .expect("failed to execute cargo update");
+        .arg("update")
+        .current_dir(CARGOPATH)
+        .spawn()
+        .expect("failed to execute cargo update");
 
     child.wait().expect("Failed to wait on cargo update");
 
     let mut child = Command::new("cargo")
-            .arg("build")
-            .arg("--release")
-            .current_dir(CARGOPATH)
-            .spawn()
-            .expect("failed to execute cargo build");
+        .arg("build")
+        .arg("--release")
+        .current_dir(CARGOPATH)
+        .spawn()
+        .expect("failed to execute cargo build");
 
     child.wait().expect("Failed to wait on cargo build");
 
     let mut child = Command::new("sudo")
-            .arg("rm")
-            .arg("/bin/sspa")
-            .spawn()
-            .expect("failed to rm sspa");
+        .arg("rm")
+        .arg("/bin/sspa")
+        .spawn()
+        .expect("failed to rm sspa");
 
     child.wait().expect("Failed to wait on rm sspa");
 
     let mut child = Command::new("sudo")
-            .arg("cp")
-            .arg(CARGOPATH.to_string()+"/target/release/sspa")
-            .arg("/bin/sspa")
-            .spawn()
-            .expect("failed to add sspa to path");
+        .arg("cp")
+        .arg(CARGOPATH.to_string() + "/target/release/sspa")
+        .arg("/bin/sspa")
+        .spawn()
+        .expect("failed to add sspa to path");
 
     child.wait().expect("Failed to wait on cp sspa");
 }
