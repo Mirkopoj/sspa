@@ -145,10 +145,10 @@ async fn counter(
                 if verbose {
                     println!("Reached Timeout Counted {}", count);
                 }
+                monitor_pin.clear_interrupt().unwrap();
                 return count;
             }
         };
-        monitor_pin.clear_interrupt().unwrap();
 
     }
 }
