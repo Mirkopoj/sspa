@@ -123,7 +123,6 @@ async fn counter(
     }
     let mut monitor_pin = monitor_pin.lock().unwrap();
     monitor_pin.set_interrupt(Trigger::RisingEdge).unwrap();
-    monitor_pin.clear_interrupt().unwrap();
 
     loop{
         match rx.try_recv() {
@@ -131,6 +130,7 @@ async fn counter(
                 if verbose {
                     println!("Counted {}", count);
                 }
+                monitor_pin.clear_interrupt().unwrap();
                 return count;
             },
             Err(_) => { },
