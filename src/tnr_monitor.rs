@@ -139,6 +139,9 @@ async fn counter(
         match monitor_pin.poll_interrupt(true, Some(Duration::from_millis(timeout_period)))
         {
             Ok(_) => {
+                if verbose {
+                    println!("Interrupt! Counted {}", count);
+                }
                 count +=1;
             }
             Err(_) => {
