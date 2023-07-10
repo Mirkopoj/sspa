@@ -4,7 +4,7 @@ use tokio::sync::{broadcast, mpsc};
 
 extern crate unicode_segmentation;
 
-const VERSION: &str = "v0.7.2";
+const VERSION: &str = "v0.7.3";
 
 const CARGOPATH: &str = "/opt/sspa";
 
