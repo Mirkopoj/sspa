@@ -73,7 +73,7 @@ pub async fn monitor_handler(
             2 => {
                 tx_count.send(0).unwrap();
                 respuesta = match count_join_handle {
-                    Some(handle) => handle.await.unwrap().to_be_bytes(),
+                    Some(handle) => (handle.await.unwrap()-1).to_be_bytes(),
                     None => [0, 0],
                 };
                 count_join_handle = None;
