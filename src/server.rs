@@ -4,7 +4,7 @@ use tokio::net::{TcpListener, TcpStream};
 
 use crate::dac::{dac_read, dac_write};
 use crate::relay::relay;
-use crate::spi::{spi_debug, spi_read, spi_write};
+use crate::spi::{spi_debug, spi_read, spi_write, spi_stress_test};
 use crate::tnr::tnr;
 use crate::tnr_monitor::tnr_monitor;
 
@@ -140,6 +140,7 @@ async fn handle_connection(
             0x2D000000 => Some(relay(mensaje, &mut reset_relay_rx, &reset_relay_tx).await),
             0x3D000000 => Some(relay(mensaje, &mut program_relay_rx, &program_relay_tx).await),
             0x4D000000 => Some(tnr_monitor(mensaje, &mut monitor_rx, &monitor_tx).await),
+            0xE5000000 => Some(spi_stress_test(mensaje, &mut spi_rx, &spi_tx, verbose).await),
             _ => {
                 if verbose {
                     println!("Invalid Command");

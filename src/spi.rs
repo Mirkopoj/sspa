@@ -71,6 +71,25 @@ pub async fn spi_debug(
     spi_core(0, msg << 16, rx, tx).await
 }
 
+pub async fn spi_stress_test(
+    msg: u32,
+    rx: &mut tokio::sync::broadcast::Receiver<[u8; 2]>,
+    tx: &tokio::sync::mpsc::Sender<[u8; 5]>,
+    verbose: bool,
+) -> [u8; 2] {
+    let pack_count = msg & 0x0000FFFF;
+    if verbose {
+        println!("Stress testing with {} packets", pack_count);
+    }
+    for _ in 0..pack_count {
+        spi_core(1, 0, rx, tx).await;
+    }
+    if verbose {
+        println!("Stress testing finished");
+    }
+    spi_core(1, 0, rx, tx).await
+}
+
 async fn spi_core(
     len: u8,
     msg: u32,
