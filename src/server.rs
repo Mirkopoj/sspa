@@ -140,7 +140,7 @@ async fn handle_connection(
             0x2D000000 => Some(relay(mensaje, &mut reset_relay_rx, &reset_relay_tx).await),
             0x3D000000 => Some(relay(mensaje, &mut program_relay_rx, &program_relay_tx).await),
             0x4D000000 => Some(tnr_monitor(mensaje, &mut monitor_rx, &monitor_tx).await),
-            0xE5000000 => Some(spi_stress_test(mensaje, &mut spi_rx, &spi_tx, verbose).await),
+            0x5E000000 => Some(spi_stress_test(mensaje, &mut spi_rx, &spi_tx, verbose).await),
             _ => {
                 if verbose {
                     println!("Invalid Command");
